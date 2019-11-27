@@ -23,13 +23,30 @@ autoremove-repo() {
 	apt autoremove -y
 }
 
+dis-ipv6() {
+	if [ $VER = "16.04" ];then
+		# ubuntu 16 disable
+		echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+		echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+		echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf
+		sysctl -p
+	elif [ $VER = "18.04" ];then
+		# ubuntu 18 disable
+		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
+		update-grub
+	else
+		echo "[-] Your ubuntu version is #{$VER} not supported"
+		exit 1
+	fi
+}
+
 get-confirmation() {
-	if (whiptail --title "Warning" --yesno "This script will disable ipv6. Do you agree?" 8 78)
+	if (whiptail --title "Ipv6" --yesno "This script will disable ipv6. Do you agree?" 8 78)
 		then
-			:
+			echo "[+] Disable ipv6..."
+			dis-ipv6
 		else
-			echo "[-] No. The installer will exit"
-			exit 1
+			:
 	fi
 }
 
@@ -49,22 +66,6 @@ cmd-reboot() {
 	reboot
 
 }
-dis-ipv6() {
-	if [ $VER = "16.04" ];then
-		# ubuntu 16 disable
-		echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
-		echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
-		echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf
-		sysctl -p
-	elif [ $VER = "18.04" ];then
-		# ubuntu 18 disable
-		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
-		update-grub
-	else
-		echo "[-] Your ubuntu version is #{$VER} not supported"
-		exit 1
-	fi
-}
 
 main() {
 	# check run script
@@ -75,9 +76,6 @@ main() {
 
 	#reconfigure date
 	reconfig-date
-
-	#disable ipv6
-	dis-ipv6
 
 	# update repo
 	update-repo
