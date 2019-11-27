@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-
 VER=$(lsb_release -rs)
 
 check-root() {
@@ -48,15 +47,14 @@ dis-ipv6() {
 	fi
 }
 
-
 main() {
-	#check-root
+	check-root
 	get-confirmation
-	#dis-ipv6
-	#update-repo
-	#upgrade-repo
-	#autoremove-repo
-	#reboot	
+	dis-ipv6
+	update-repo
+	upgrade-repo
+	autoremove-repo
+	reboot	
 }
 
 main
