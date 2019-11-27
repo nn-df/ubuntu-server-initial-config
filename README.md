@@ -3,9 +3,10 @@
 ### How to run
 ```
 wget https://raw.githubusercontent.com/nn-df/ubuntu-server-initial-config/master/ubuntu.sh
+bash ubuntu.sh
 ```
 
-### The list what this script do :
+### The list what this script will do :
 - update
 - upgrade
 - setting timezone/date
