@@ -42,6 +42,10 @@ autoremove-repo() {
 	apt autoremove -y
 }
 
+install-service() {
+	apt -yq install $1
+}
+
 dis-ipv6() {
 	if [ $VER = "16.04" ];then
 		# ubuntu 16 disable
@@ -67,6 +71,26 @@ get-confirmation() {
 		else
 			:
 	fi
+}
+
+enable-ufw() {
+	install-service ufw
+	echo "[+] Configure ufw..."
+	ufw allow 22
+	echo "[++] To allow other port please used command : ufw allow [PORT] "
+	echo "[++] Example allow port 80 : ufw allow 80"
+	echo " "
+	sleep 5
+}
+
+ufw-support() {
+	if (whiptail --title "Firewall" --yesno "Enable firewall (ufw) on this server ?" 8 78)
+		then
+			echo "[+] Enable UFW..."
+			enable-ufw
+		else
+			:
+	fi	
 }
 
 reconfig-date() {
@@ -95,6 +119,9 @@ main() {
 
 	# get confirmation disable ipv6
 	get-confirmation
+
+	#configure ufw
+	ufw-support
 
 	# reconfigure date
 	reconfig-date
