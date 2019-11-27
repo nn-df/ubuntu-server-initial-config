@@ -77,6 +77,7 @@ enable-ufw() {
 	install-service ufw
 	echo "[+] Configure ufw..."
 	ufw allow 22
+	ufw --force enable
 	echo "[++] To allow other port please used command : ufw allow [PORT] "
 	echo "[++] Example allow port 80 : ufw allow 80"
 	echo " "
