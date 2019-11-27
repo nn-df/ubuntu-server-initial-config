@@ -14,4 +14,5 @@ bash ubuntu.sh
 - update
 - upgrade
 - setting timezone/date
+- enable firewall (ufw)
 - disable ipv6
