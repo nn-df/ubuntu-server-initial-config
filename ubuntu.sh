@@ -57,7 +57,7 @@ dis-ipv6() {
 		# ubuntu 18 disable
 		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
 		update-grub
-	elif [ $VER = "20.04" ]
+	elif [ $VER = "20.04" ];then
 		# ubuntu 20 disable
 		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
                 update-grub
