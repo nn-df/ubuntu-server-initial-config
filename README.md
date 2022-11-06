@@ -1,4 +1,4 @@
-## This script for initial config on **ubuntu server** 16.04,18.04 and 20.04
+## This script for initial config on **ubuntu server** 16.04,18.04,20.04 and 22.04
 
 ### Requirements
 - internet connection
