@@ -6,15 +6,15 @@ DATE=$(date)
 
 check_version() {
 	if [ $VER = "16.04" ];then
-		:
+		echo "[+] Ubuntu version #{$VER} detected"
 	elif [ $VER = "18.04" ];then
-		:
+		echo "[+] Ubuntu version #{$VER} detected"
 	elif [ $VER = "20.04" ];then
-		:
+		echo "[+] Ubuntu version #{$VER} detected"
 	elif [ $VER = "22.04" ];then
-		:
+		echo "[+] Ubuntu version #{$VER} detected"
 	else
-		echo "[-] Your ubuntu version is #{$VER} not supported"
+		echo "[!] Your ubuntu version is #{$VER} not supported"
 		exit 1
 	fi
 }
@@ -38,25 +38,26 @@ install_service() {
 check_dependency() {
 	# check root
 	if [[ $EUID -ne 0 ]]; then
-	   echo "[-] This script must be run as root" 
+	   echo "[!] This script must be run as root" 
 	   exit 1
 	fi
 
 	# check network status (internet and dns)
 	if ping -q -c 3 -W 1 www.google.com > /dev/null 2>&1;then
-		:
+		echo "[+] Checking network OK"
 	else 
 		if ping -q -c 3 -W 1 8.8.8.8 > /dev/null 2>&1;then
-			echo "[-] Check your DNS setting"
+			echo "[!] Check your DNS setting"
 			exit $?
 		else
-			echo "[-] Check your NETWORK setting"
+			echo "[!] Check your NETWORK setting"
 			exit $?
 		fi
 	fi
 
 	# check whiptail
 	if which whiptail > /dev/null 2>&1; then
+		echo "[+] Checking whiptail OK"
 		:
 	else
 		install_service whiptail
@@ -106,7 +107,7 @@ dis_ipv6() {
         update-grub
 		install_service net-tools
 	else
-		echo "[-] Your ubuntu version is #{$VER} not supported"
+		echo "[!] Your ubuntu version is #{$VER} not supported"
 		exit 1
 	fi
 }
