@@ -4,14 +4,69 @@ set -euo pipefail
 VER=$(lsb_release -rs)
 DATE=$(date)
 
-check-root() {
+check_version() {
+	if [ $VER = "16.04" ];then
+		:
+	elif [ $VER = "18.04" ];then
+		:
+	elif [ $VER = "20.04" ];then
+		:
+	elif [ $VER = "22.04" ];then
+		:
+	else
+		echo "[-] Your ubuntu version is #{$VER} not supported"
+		exit 1
+	fi
+}
+
+update_repo() {
+	apt update
+}
+
+upgrade_repo() {
+	apt upgrade -y
+}
+
+autoremove_repo() {
+	apt autoremove -y
+}
+
+install_service() {
+	apt -yq install $1
+}
+
+check_dependency() {
+	# check root
 	if [[ $EUID -ne 0 ]]; then
 	   echo "[-] This script must be run as root" 
 	   exit 1
 	fi
+
+	# check network status (internet and dns)
+	if ping -q -c 3 -W 1 www.google.com > /dev/null 2>&1;then
+		:
+	else 
+		if ping -q -c 3 -W 1 8.8.8.8 > /dev/null 2>&1;then
+			echo "[-] Check your DNS setting"
+			exit $?
+		else
+			echo "[-] Check your NETWORK setting"
+			exit $?
+		fi
+	fi
+
+	# check whiptail
+	if which whiptail > /dev/null 2>&1; then
+		:
+	else
+		install_service whiptail
+	fi
+	
 }
 
-display-ascii() {
+
+
+display_ascii() {
 		echo -e '
 		 m    m #                      m            mmmm                                    
 		 #    # #mmm   m   m  m mm   mm#mm  m   m  #"   "  mmm    m mm  m   m   mmm    m mm 
@@ -30,23 +85,7 @@ display-ascii() {
 		sleep 3
 }
 
-update-repo() {
-	apt update
-}
-
-upgrade-repo() {
-	apt upgrade -y
-}
-
-autoremove-repo() {
-	apt autoremove -y
-}
-
-install-service() {
-	apt -yq install $1
-}
-
-dis-ipv6() {
+dis_ipv6() {
 	if [ $VER = "16.04" ];then
 		# ubuntu 16 disable
 		echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
@@ -60,25 +99,30 @@ dis-ipv6() {
 	elif [ $VER = "20.04" ];then
 		# ubuntu 20 disable
 		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
-                update-grub
+        update-grub
+	elif [ $VER = "22.04" ];then
+		# ubuntu 22 disable
+		sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
+        update-grub
+		install_service net-tools
 	else
 		echo "[-] Your ubuntu version is #{$VER} not supported"
 		exit 1
 	fi
 }
 
-get-confirmation() {
+get_confirmation_ipv6_disable() {
 	if (whiptail --title "Ipv6" --yesno "This script will disable ipv6. Do you agree?" 8 78)
 		then
 			echo "[+] Disable ipv6..."
-			dis-ipv6
+			dis_ipv6
 		else
 			:
 	fi
 }
 
-enable-ufw() {
-	install-service ufw
+enable_ufw() {
+	install_service ufw
 	echo "[+] Configure ufw..."
 	ufw allow 22
 	ufw --force enable
@@ -88,17 +132,17 @@ enable-ufw() {
 	sleep 5
 }
 
-ufw-support() {
+ufw_support() {
 	if (whiptail --title "Firewall" --yesno "Enable firewall (ufw) on this server ?" 8 78)
 		then
 			echo "[+] Enable UFW..."
-			enable-ufw
+			enable_ufw
 		else
 			:
 	fi	
 }
 
-reconfig-date() {
+reconfig_date() {
 	if (whiptail --title "Date" --yesno "The date now is #{$DATE} it is correct?" 8 78)
 		then
 			:
@@ -108,7 +152,7 @@ reconfig-date() {
 	fi
 }
 
-cmd-reboot() {
+cmd_reboot() {
 	whiptail --title "Reboting..." --msgbox "This server will reboot in 5 seconds" 8 78
 	sleep 5
 	reboot
@@ -117,31 +161,34 @@ cmd-reboot() {
 
 main() {
 	# display main
-	display-ascii
+	display_ascii
+
+	# check ubuntu version
+	check_version
 
 	# check run script
-	check-root
+	check_dependency
 
 	# get confirmation disable ipv6
-	get-confirmation
+	get_confirmation_ipv6_disable
 
 	#configure ufw
-	ufw-support
+	ufw_support
 
 	# reconfigure date
-	reconfig-date
+	reconfig_date
 
 	# update repo
-	update-repo
+	update_repo
 
 	# upgrade repo
-	upgrade-repo
+	upgrade_repo
 
-	# clean-up repo
-	autoremove-repo
+	# clean_up repo
+	autoremove_repo
 
 	# reboot server
-	cmd-reboot
+	cmd_reboot
 }
 
 main
