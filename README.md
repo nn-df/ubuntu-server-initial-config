@@ -2,7 +2,7 @@
 
 ### Requirements
 - internet connection
-- **ubuntu server** LTS (22.04,20.04/18.04/16.04) with fresh installation
+- **ubuntu server** LTS (22.04/20.04/18.04/16.04) with fresh installation
 
 ### How to run
 ```
